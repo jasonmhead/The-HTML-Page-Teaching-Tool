@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Editable</title>
+	<script src="jquery-3.6.0.js"></script>
+  <style type="text/css">
+   body{
+	font-size: 40px;
+	margin: 20px;
+   }
+   .word, .blanked{
+	cursor: pointer;
+   }
+   
+   #instructions{
+	  font-size: 12px;
+	  color: gray;
+   }
+   
+   #text_body{
+	  border: lightgray 1px solid;
+	  padding: 20px;
+   }
+   
+   #header_div h1{
+	font-size: 18px;
+	color: gray;
+   }
+   
+   #header_div h2{
+	font-size: 14px;
+	color: gray;
+   }
+  </style>
+  </head>
+  <body>
+    <div id="header_div"><h1>The HTML Page Teaching Tool</h1><h2>Compiled by Jason Head @ github.com/jasonmhead @ jasonmhead.com</h2></div>
+    <div id="instructions">
+	<ul>
+		<li>Type in sentances; after typing . (period) the words are turned into the clickable/hideable versions</li>
+		<li>If you type in a ? make sure to type a . (period) to trigger the conversion (you could hit return . so the period is on the next line)</li>
+		<li>Left-click on a word to edit it; right-click to insert the cursor for editing</li>
+		<li>Left-click again to save your edit and make the word clickable/hideable again</li>
+	</ul>
+	</div>
+	<div contenteditable="true" id="text_body">
+    Example
+	</div>
+	
+	<script>
+	$( document ).ready(function() {
+		document.getElementById("text_body")
+		  .addEventListener("keyup", function(e) {
+			if (e.keyCode === 190 || e.keyCode === 63) {
+			  var raw_text = $("#text_body").text();
+			  raw_text = raw_text.replace(/\./g, ". ");
+			  raw_text = raw_text.replace(/\?/g, "? ");
+			  var raw_lines = raw_text.split(" ");
+			  $("#text_body").html(''); // blank the text
+			  raw_lines.forEach(function(entry) {
+				 $("#text_body").append('<span id="'+Math.floor((Math.random() * 100000) + 1)+'" class="word" data-text="'+entry+'" contenteditable="false">'+entry+'</span> ');
+				 if(entry.includes(".") || entry.includes("?")){
+					$("#text_body").append('<br>');
+				 }
+			});
+			}
+		  });
+		  
+		  // replace clicked word with ___
+		  $(document).on("click", ".word", function() {
+			 var i;
+			 var underscores = "_";
+			  for (i = 0; i < $(this).text().length -1; i++) {
+			    underscores += "_";
+			  } 
+			  $(this).text(underscores);
+			  $(this).removeClass("word").addClass("blanked");
+          });
+		  
+		  // replace blank with original word
+		  $(document).on("click", ".blanked", function() {
+			$(this).text($(this).attr("data-text"));
+			$(this).removeClass("blanked").addClass("word");
+		  });
+		  
+		  // edit word
+		  $(document).on("contextmenu", ".word", function(e){
+			   $(this).attr("contenteditable","true");
+			   $(this).css('background-color','yellow');
+			   $(this).removeClass("word").addClass("being_edited");
+			   $(this).focus();
+				return false;
+			});
+			
+			// save word
+			$(document).on("contextmenu", ".being_edited", function(e){
+			   $(this).attr("contenteditable","false");
+			   $(this).css('background-color','white');
+			   $(this).removeClass("being_edited").addClass("word");
+			   $(this).attr('data-text',$(this).text());
+				return false;
+			});
+		  
+	}); //  end doc ready
+	</script>
+  </body>
+</html>
